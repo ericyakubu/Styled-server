@@ -21,23 +21,21 @@ app.use((req, res, next) => {
   // Set the allowed origins as an array
   const allowedOrigins = [
     "http://127.0.0.1:5173",
+    "http://localhost:5173",
     "http://127.0.0.1:5174",
     "https://styled-eight.vercel.app",
+    "https://styled-ericyakubu.vercel.app",
   ];
 
   // Check if the request's origin is in the allowed origins array
+
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
+
   // res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5173");
   // res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5174");
-  // res.setHeader(
-  //   "Access-Control-Allow-Origin",
-  //   "https://styled-eight.vercel.app/"
-  // );
-  // You can also set it to '*' to allow requests from any origin, but this is less secure:
-  // res.setHeader("Access-Control-Allow-Origin", "*");
 
   // Other CORS headers to allow various types of requests
   res.setHeader(
