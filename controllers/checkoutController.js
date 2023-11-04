@@ -23,14 +23,15 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     };
   });
 
+  console.log(formatedProducts);
   // 2) create checkout session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
     success_url: `${req.protocol}://${req.get("host")}/`, //home url
     cancel_url: `${req.protocol}://${req.get("host")}/shop`, //home url
-    customer_email: req.user.email,
-    client_reference_id: req.params.productId,
+    // customer_email: req.user.email,
+    // client_reference_id: req.params.productId,
     line_items: formatedProducts,
   });
 
