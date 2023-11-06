@@ -19,7 +19,7 @@ const reviewSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now(),
-      select: false, //hides this field from output (user)
+      select: false,
     },
     product: {
       type: mongoose.Schema.ObjectId,
@@ -38,22 +38,14 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-reviewSchema.index({ product: 1, user: 1 }, { unique: true }); //making sure that User can only leave one review on each product
+//making sure that User can only leave one review on each product
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
     select: "name photo",
   });
-  // this
-  // .populate({
-  //   path: "product",
-  //   select: "name",
-  // });
-  // .populate({
-  //   path: "user",
-  //   select: "photo",
-  // });
   next();
 });
 
@@ -71,8 +63,6 @@ reviewSchema.statics.calcAverageRatings = async function (productId) {
     },
   ]);
 
-  // console.log(stats);
-
   if (stats.length > 0) {
     await Product.findByIdAndUpdate(productId, {
       ratingsQuantity: stats[0].nRating,
@@ -87,7 +77,6 @@ reviewSchema.statics.calcAverageRatings = async function (productId) {
 };
 
 reviewSchema.post("save", function () {
-  // this points to current review
   this.constructor.calcAverageRatings(this.product);
 });
 

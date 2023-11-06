@@ -57,10 +57,7 @@ exports.getAll = (Model) =>
       .paginate();
 
     const totalCount = await Model.countDocuments(filter);
-    // console.log(number);
-
     const doc = await features.query;
-    // const doc = await features.query.explain(); //shows ALL detailed information about request/query/process
 
     //send response
     res.status(200).json({

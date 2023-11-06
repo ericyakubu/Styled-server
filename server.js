@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const PORT = process.env.PORT || 3000;
 
 // Error handling
-// ? Google for more info
 process.on("uncaughtException", (err) => {
   console.log(err.name, err.message);
   console.log("UNCAUGHT EXCEPTION! Shutting down...");

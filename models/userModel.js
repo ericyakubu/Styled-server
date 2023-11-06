@@ -33,9 +33,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please confirm your password"],
     validate: {
-      // This only works on save/create
       validator: function (el) {
-        return el === this.password; //check if passwords match
+        return el === this.password;
       },
       message: "Passwords aren't matching",
     },
@@ -52,21 +51,19 @@ const userSchema = new mongoose.Schema({
 
 //password encryption
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next(); //if password is not modified - carry on to the next
-  this.password = await bcrypt.hash(this.password, 12); //the higher the number (12) the more preasure it'll put on pc (+ will take more time) and the better password will be encrypted
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
   next();
 });
 
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || this.isNew) return next();
-  this.passwordChangeAt = Date.now() - 1000; //sometimes token is being issued faster then DB updates, therefore to not cause any issues - substract a second or two
+  this.passwordChangeAt = Date.now() - 1000;
   next();
 });
 
 userSchema.pre(/^find/, function (next) {
-  // effects everything that starts with User.find
-  // "this" points to the current query
   this.find({ active: { $ne: false } });
   next();
 });
@@ -85,11 +82,8 @@ userSchema.methods.changedPasswordAfter = function (JWTTimeStamp) {
       this.passwordChangeAt.getTime() / 1000,
       10
     );
-    // console.log(changedTimeStamp, JWTTimeStamp);
     return JWTTimeStamp < changedTimeStamp;
   }
-
-  // means not changed
   return false;
 };
 
@@ -101,8 +95,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //gives 10 min to reset password
-
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
 

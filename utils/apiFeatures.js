@@ -53,9 +53,6 @@ class APIFeatures {
       const sortBy = this.queryString.sort.split(",").join(" ");
       this.query = this.query.sort(sortBy);
     }
-    // else {
-    //   this.query = this.query.sort("-createdAt"); //default sorting will be by created date
-    // }
     return this;
   }
 
@@ -73,12 +70,11 @@ class APIFeatures {
 
   paginate() {
     // 4) Pagination
-    //! needs debugging
     const page = this.queryString.page * 1 || 1; //convert string to number or use default
     const limit = this.queryString.limit * 1 || 18; //convert string to number or use default
     const skip = (page - 1) * limit;
 
-    this.query = this.query.skip(skip).limit(limit); //skip = amount of results to be skipped | limit = amount of results to be showed
+    this.query = this.query.skip(skip).limit(limit);
 
     return this;
   }

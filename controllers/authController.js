@@ -14,18 +14,15 @@ const signToken = (id) => {
 
 const createAndSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
-  // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9";
 
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     secure: process.env.NODE_ENV === "production",
-    // ...(process.env.NODE_ENV === "production" && { secure: true }),
     httpOnly: true, // makes sure that only browser can access it
   }; //Expires in 90days
 
-  // res.cookie("jwt", token);
   res.cookie("jwt", token, cookieOptions);
 
   // removes the password from the output
@@ -81,8 +78,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // console.log(req.headers.authorization);
-
   // 2) verify token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
@@ -101,33 +96,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
-
-// Only for rendering pages, no errors
-// exports.isLoggedIn = catchAsync(async (req, res, next) => {
-//   if (req.cookies.jwt) {
-//     // 1) verify token
-//     const decoded = await promisify(jwt.verify)(
-//       req.cookies.jwt,
-//       process.env.JWT_SECRET
-//     );
-
-//     // 2) check if user still exists
-//     const currentUser = await User.findById(decoded.id);
-//     if (!currentUser) return next();
-
-//     // 3) check if user changed password after JWT token was issued
-//     if (currentUser.changedPasswordAfter(decoded.iat)) return next();
-
-//     // there is a logged in user
-//     res.locals.user = currentUser;
-//     next();
-//   }
-//   next();
-// });
-
 exports.restrictTo = (...roles) => {
-  //have to do that because you cant pass variables to the middleware
-  //roles is an array
   return (req, res, next) => {
     if (!roles.includes(req.user.role))
       return next(

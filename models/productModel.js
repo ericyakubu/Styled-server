@@ -17,10 +17,6 @@ const productSchema = new mongoose.Schema(
         5,
         `Name length must be equal to or greater than 5 characters`,
       ],
-      // validate: [
-      //   validator.isAlpha,
-      //   'A product name must only consist of alphabecit characters',
-      // ],
     },
     slug: String,
     ratingsAverage: {
@@ -74,7 +70,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function (value) {
-          return this.discount ? false : value < this.price; //!'this' will work only when creating, but not updating
+          return this.discount ? false : value < this.price;
         },
         message:
           "Discount price must be below original price and can only have one discount type, (set amount or percentage)",
@@ -105,7 +101,7 @@ const productSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now(),
-      select: false, //hides this field from output (user)
+      select: false,
     },
   },
   {
@@ -114,24 +110,15 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-// productSchema.index({ price: 1 }); //1 sorts in ascending order, -1 sorts in descending order
 productSchema.index({ price: 1, ratingsAverage: -1 });
 productSchema.index({ slug: 1 });
-//? indexes use a lot of space in db, therefore you should only use them in the models that will actually require them.
-//? (that are the most searched for and etc. since in this project it's logical that most people will be interested in lowest price and highest ratings and not really anything else,
-//? it would make sence to only do it for them)
-
-//? also don't use them where they are not needed (like users and reviws here) since they will take a shit tonn of space therefore cost a lot of money to maintain
-
-// tourSchema.index({startLocation: '2dsphere'}); //!needed for getToursWithin
 
 productSchema.virtual("reviews", {
-  ref: "Review", //model we are taking data from
-  foreignField: "product", //in review model - this is where we store the product ids
-  localField: "_id", //that's where we store product ids in product model
-}); //! you need to explain what fields connect both models, basically link them
+  ref: "Review",
+  foreignField: "product",
+  localField: "_id",
+});
 
-// Document middleware: runs before .save() and .create() //!'this' will work only when creating, but not updating
 productSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -139,31 +126,10 @@ productSchema.pre("save", function (next) {
 
 // // Query Middleware
 productSchema.pre(/^find/, function (next) {
-  // /^find/ works on every command that starts with find. ex: find, findById, findByIdAndUpdate, etc.
   this.find({ secretProduct: { $ne: true } });
   this.start = Date.now();
   next();
 });
-
-// productSchema.pre(/^find/, function (next) {
-//   this.populate({
-//     path: 'guides', //populate fills the reference field (guides) with actual data about guide
-//     select: '-__v -passwordChangeAt', //hides this info about users
-//   });
-//   next();
-// });
-
-// productSchema.post(/^find/, function (docs, next) {
-//   console.log(`Query took ${Date.now() - this.start} milliseconds`);
-//   // console.log(docs);
-//   next();
-// });
-
-// // Aggregation Middleware
-// productSchema.pre('aggregate', function (next) {
-//   this.pipeline().unshift({ $match: { secretProduct: { $ne: true } } });
-//   next();
-// });
 
 const Product = mongoose.model("Product", productSchema);
 

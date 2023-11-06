@@ -34,22 +34,15 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
-  // res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5173");
-  // res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5174");
-
-  // Other CORS headers to allow various types of requests
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PATCH, PUT, DELETE"
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // Allow credentials (if applicable)
   res.setHeader("Access-Control-Allow-Credentials", true);
 
-  // Handle preflight request
   if (req.method === "OPTIONS") {
-    // Respond to the preflight request
     return res.sendStatus(200);
   }
 
@@ -57,7 +50,6 @@ app.use((req, res, next) => {
 });
 
 // 1) Global Middleware
-// set security HTTP headers
 app.use(helmet());
 
 // development logging
@@ -66,7 +58,6 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // limit requests from 1 IP during a certain amount of time
-//TODO add again
 //? const limiter = rateLimit({
 //?   max: 100000, //TODO enable it after done
 //?   windowMs: 60 * 60 * 1000,
@@ -76,30 +67,19 @@ if (process.env.NODE_ENV === "development") {
 
 //? app.use("/api", limiter);
 
-// body parser, reading data from the body into req.body
-app.use(express.json({ limit: "10kb" })); // accepts requests with body of <= 10kb
+app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
-
-// data sanitization against NoSQL query injection
 app.use(mongoSanitize());
-
-// data sanitization against XSS
 app.use(xss());
 
 // prevent parameter pollution
-// ? help fix issues that may arrise when quering for same thing multiply times.
-// ? for expample - sort=price&sort=duration shouldn't be seperated and go as one sort=price, duration and that will fix it
-// ? on the other hand, we may want to get different products that will last either 5 or 9 days, which then would require us to query duration=5&duration=9, therefore we whitelist it
 app.use(
   hpp({
     whitelist: [
-      "duration", //! needs to be adjusted
       "ratingsQuantity",
       "ratingsAverage",
       "sizes",
       "category",
-      "maxGroupSize", //! needs to be adjusted
-      "difficulty", //! needs to be adjusted
       "price",
     ],
   })
@@ -107,13 +87,6 @@ app.use(
 
 // serving static files
 app.use(express.static(`${__dirname}/public`));
-
-// test middleware
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  // // console.log(req.cookies);
-  next();
-}); // --------> how would an actual middleware look like if were to build myself
 
 // Routes
 app.use("/api/v1/products", productRouter);

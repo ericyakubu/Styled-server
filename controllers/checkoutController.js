@@ -8,11 +8,10 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const formatedProducts = products.map((product) => {
     return {
       price_data: {
-        unit_amount: Number((product.price * 100).toFixed(2)), //counts by cents
+        unit_amount: Number((product.price * 100).toFixed(2)),
         currency: "usd",
         product_data: {
           name: `${product.name}`,
-          // description: product.description,
           description: ` ${
             product.size ? `Size selected: ${product.size.toUpperCase()}` : ``
           }`,
@@ -28,10 +27,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
-    success_url: `${req.protocol}://${req.get("host")}/`, //home url
-    cancel_url: `${req.protocol}://${req.get("host")}/shop`, //home url
-    // customer_email: req.user.email,
-    // client_reference_id: req.params.productId,
+    success_url: `${req.protocol}://${req.get("host")}/`,
+    cancel_url: `${req.protocol}://${req.get("host")}/shop`,
     line_items: formatedProducts,
   });
 
